@@ -1,6 +1,7 @@
 import sampleNews from '../data/sampleNews.json'
 import sampleIncidents from '../data/sampleIncidents.json'
 import { fetchCombinedNews } from '../api/realApi'
+import { fetchNewsFromBackend, fetchThreatsFromBackend } from '../api/backendApi'
 
 /**
  * Simulate API delay
@@ -103,7 +104,20 @@ const filterIncidents = (incidents, filters) => {
  * @returns {Promise<Array>} Filtered news items
  */
 export const fetchNews = async (filters = {}) => {
-  // Try to fetch real news first
+  // Priority 1: Try backend API first
+  try {
+    const backendNews = await fetchNewsFromBackend(filters)
+    if (backendNews && backendNews.length > 0) {
+      const filtered = filterNews(backendNews, filters)
+      return filtered.sort((a, b) => 
+        new Date(b.published_at) - new Date(a.published_at)
+      )
+    }
+  } catch (error) {
+    console.warn('Backend API failed, trying other sources:', error)
+  }
+
+  // Priority 2: Try real API (NewsAPI, CISA)
   try {
     const realNews = await fetchCombinedNews(filters)
     if (realNews && realNews.length > 0) {
@@ -119,7 +133,7 @@ export const fetchNews = async (filters = {}) => {
     console.warn('Real API failed, using mock data:', error)
   }
   
-  // Fallback to mock data
+  // Priority 3: Fallback to mock data
   await delay(300)
   const filtered = filterNews(sampleNews, filters)
   // Sort by date (newest first)

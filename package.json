@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "SentinelPulse - Real-time Threat Intelligence Dashboard",
-  "homepage": "https://YOUR_GITHUB_USERNAME.github.io/sentinelpulse",
+  "homepage": "https://G160-C.github.io/sentinelpulse",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"

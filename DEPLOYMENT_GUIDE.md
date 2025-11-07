@@ -113,7 +113,7 @@ Complete guide to deploy SentinelPulse to GitHub and Vercel (or other free platf
 Add this to your `package.json`:
 ```json
 {
-  "homepage": "https://YOUR_USERNAME.github.io/sentinelpulse",
+  "homepage": "https://.github.io/sentinelpulse",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
@@ -160,6 +160,73 @@ Your app will be at: `https://YOUR_USERNAME.github.io/sentinelpulse`
 - [ ] Update README.md with deployment URL
 - [ ] Test all features work in production build
 - [ ] Verify API keys are set in deployment platform
+- [ ] **Backend:** Decide if you want to deploy backend (optional - frontend works without it)
+
+## 🔌 Backend Deployment (Optional)
+
+**Important:** The frontend works perfectly without the backend! It will automatically:
+1. Try backend API (if enabled)
+2. Fall back to real APIs (NewsAPI, CISA)
+3. Fall back to mock data
+
+### Option 1: Deploy Backend to Render (Recommended - Free)
+
+1. **Push backend to GitHub:**
+   ```powershell
+   cd SentinelPulse-Backend
+   git init
+   git add .
+   git commit -m "Backend API"
+   git remote add origin https://github.com/YOUR_USERNAME/sentinelpulse-backend.git
+   git push -u origin main
+   ```
+
+2. **Deploy on Render:**
+   - Go to https://render.com
+   - Sign up with GitHub
+   - Click "New" → "Web Service"
+   - Connect your backend repository
+   - Settings:
+     - **Name:** sentinelpulse-api
+     - **Environment:** Python 3
+     - **Build Command:** `pip install -r requirements.txt`
+     - **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - Add environment variable:
+     - `DATABASE_URL` = `sqlite:///./sentinelpulse.db` (or PostgreSQL URL)
+   - Click "Create Web Service"
+   - Your backend will be at: `https://sentinelpulse-api.onrender.com`
+
+3. **Update Frontend Environment Variables:**
+   In your frontend deployment (Vercel/Netlify):
+   - `VITE_USE_BACKEND` = `true`
+   - `VITE_API_BASE_URL` = `https://sentinelpulse-api.onrender.com/api`
+
+### Option 2: Deploy Backend to Railway (Free Tier Available)
+
+1. Go to https://railway.app
+2. Sign up with GitHub
+3. Click "New Project" → "Deploy from GitHub"
+4. Select your backend repository
+5. Railway auto-detects Python and FastAPI
+6. Add environment variable: `DATABASE_URL`
+7. Deploy!
+
+### Option 3: Keep Backend Local (Development Only)
+
+If you only want backend for local development:
+- Keep `VITE_USE_BACKEND=false` in production
+- Frontend will use real APIs (NewsAPI, CISA) or mock data
+- Backend only runs locally for testing
+
+### Backend Deployment Checklist
+
+- [ ] Backend repository pushed to GitHub
+- [ ] Backend deployed to Render/Railway/etc.
+- [ ] Database configured (SQLite or PostgreSQL)
+- [ ] CORS configured for frontend domain
+- [ ] Frontend environment variables updated
+- [ ] Test backend API endpoints work
+- [ ] Test frontend connects to backend
 
 ## 🐛 Common Deployment Issues
 
